@@ -5,6 +5,7 @@ import { dirname, join, resolve } from "node:path";
 import { readdirSync, existsSync, mkdirSync } from "node:fs";
 import { cp, rm } from "node:fs/promises";
 import { execSync } from "node:child_process";
+import { Command } from "commander";
 import { build, createServer } from "vite";
 import vue from "@vitejs/plugin-vue";
 import tailwindcss from "@tailwindcss/vite";
@@ -14,10 +15,6 @@ import { loadConfig, resolveSlidesDirs } from "./scripts/config.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-
-const args = process.argv.slice(2);
-const command = args[0];
-const dirsArg = args[1];
 
 const packageRoot = join(__dirname, "..");
 
@@ -240,8 +237,8 @@ Usage:
 
 Commands:
   dev                  Start the development server
-  build [names]        Build the project for production
-                       [names]: Optional comma-separated list of slide folder names to build
+  build [names]        Build the preview app and selected slides (or all if omitted)
+                       [names]: Optional slide folder names (comma-separated or space-separated)
   export-og            Export OG images for all slides
   help                 Show this help message
 
@@ -258,46 +255,73 @@ For more information, visit: https://github.com/author/slidev-workspace
 `);
 }
 
+function setWorkspaceCwd() {
+  process.env.SLIDEV_WORKSPACE_CWD = process.cwd();
+}
+
+function parseNames(names?: string[]) {
+  if (!names || names.length === 0) return undefined;
+  const parsed = names
+    .flatMap((name) => name.split(","))
+    .map((name) => name.trim())
+    .filter(Boolean);
+  return parsed.length > 0 ? parsed : undefined;
+}
+
 async function main() {
-  switch (command) {
-    case "dev":
-    case "preview":
-      // Set the working directory for the configuration system
-      process.env.SLIDEV_WORKSPACE_CWD = process.cwd();
+  const program = new Command();
+
+  program
+    .name("slidev-workspace")
+    .description(
+      "A tool for managing multiple Slidev presentations with a workspace preview app",
+    )
+    .showHelpAfterError();
+
+  program
+    .command("dev")
+    .alias("preview")
+    .description("Start the development server")
+    .action(async () => {
+      setWorkspaceCwd();
       await runVitePreview();
-      break;
+    });
 
-    case "build": {
-      // Set the working directory for the configuration system
-      process.env.SLIDEV_WORKSPACE_CWD = process.cwd();
-      const names = dirsArg
-        ? dirsArg.split(",").map((d) => d.trim())
-        : undefined;
-      await runViteBuild(names);
-      break;
-    }
+  program
+    .command("build")
+    .description(
+      "Build the preview app and selected slides (or all if omitted)",
+    )
+    .argument(
+      "[names...]",
+      "Optional slide folder names (comma-separated or space-separated)",
+    )
+    .action(async (names: string[]) => {
+      setWorkspaceCwd();
+      await runViteBuild(parseNames(names));
+    });
 
-    case "export-og":
-      // Set the working directory for the configuration system
-      process.env.SLIDEV_WORKSPACE_CWD = process.cwd();
+  program
+    .command("export-og")
+    .description("Export OG images for all slides")
+    .action(async () => {
+      setWorkspaceCwd();
       await exportOgImages();
-      break;
+    });
 
-    case "help":
-    case "--help":
-    case "-h":
+  program
+    .command("help")
+    .description("Show this help message")
+    .action(() => {
       showHelp();
-      break;
+    });
 
-    default:
-      if (!command) {
-        showHelp();
-      } else {
-        console.error(`Unknown command: ${command}`);
-        console.error('Run "slidev-workspace help" for available commands.');
-        process.exit(1);
-      }
+  if (process.argv.length <= 2) {
+    program.outputHelp();
+    return;
   }
+
+  await program.parseAsync(process.argv);
 }
 
 main().catch((error) => {
