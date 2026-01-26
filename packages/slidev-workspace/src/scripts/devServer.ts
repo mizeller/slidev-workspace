@@ -1,7 +1,8 @@
-import { readdirSync, existsSync } from "fs";
+import { existsSync } from "fs";
 import { join } from "path";
 import { spawn } from "child_process";
 import { loadConfig, resolveSlidesDirs } from "./config.js";
+import { collectSlides } from "./collectSlides";
 
 export interface DevServerInfo {
   name: string;
@@ -28,95 +29,83 @@ export async function startAllSlidesDevServer({
   console.log("📁 Working directory:", cwd);
   console.log("📂 Slides directories found:", slidesDirs);
 
-  for (const slidesDir of slidesDirs) {
-    if (!existsSync(slidesDir)) {
-      console.warn(`⚠️ Slides directory not found: ${slidesDir}`);
+  const slides = collectSlides({ slidesDirs, exclude: config.exclude });
+
+  for (const { slideDir, slideName } of slides) {
+    const packageJsonPath = join(slideDir, "package.json");
+
+    // Create unique key for this slide (using absolute path)
+    const slideKey = slideDir;
+
+    // Check if this slide is already running
+    if (runningServers.has(slideKey)) {
+      console.log(`⏭️ ${slideName} dev server already running, skipping...`);
+      devServers.push(runningServers.get(slideKey)!);
       continue;
     }
 
-    const excludedSlides = config.exclude ?? [];
-    const slides = readdirSync(slidesDir, { withFileTypes: true })
-      .filter((dirent) => dirent.isDirectory())
-      .filter((dirent) => !excludedSlides.includes(dirent.name))
-      .map((dirent) => dirent.name);
+    if (!existsSync(packageJsonPath)) {
+      console.warn(`⚠️ Skipping ${slideName}: no package.json found`);
+      continue;
+    }
 
-    for (const slideName of slides) {
-      const slideDir = join(slidesDir, slideName);
-      const packageJsonPath = join(slideDir, "package.json");
+    // Check if node_modules exists (dependencies installed)
+    const nodeModulesPath = join(slideDir, "node_modules");
+    if (!existsSync(nodeModulesPath)) {
+      console.warn(
+        `⚠️ Skipping ${slideName}: dependencies not installed (run pnpm install)`,
+      );
+      continue;
+    }
 
-      // Create unique key for this slide (using absolute path)
-      const slideKey = slideDir;
+    console.log(
+      `📦 Starting Slidev dev server for ${slideName} on port ${currentPort}...`,
+    );
 
-      // Check if this slide is already running
-      if (runningServers.has(slideKey)) {
-        console.log(`⏭️ ${slideName} dev server already running, skipping...`);
-        devServers.push(runningServers.get(slideKey)!);
-        continue;
-      }
-
-      if (!existsSync(packageJsonPath)) {
-        console.warn(`⚠️ Skipping ${slideName}: no package.json found`);
-        continue;
-      }
-
-      // Check if node_modules exists (dependencies installed)
-      const nodeModulesPath = join(slideDir, "node_modules");
-      if (!existsSync(nodeModulesPath)) {
-        console.warn(
-          `⚠️ Skipping ${slideName}: dependencies not installed (run pnpm install)`,
-        );
-        continue;
-      }
-
-      console.log(
-        `📦 Starting Slidev dev server for ${slideName} on port ${currentPort}...`,
+    try {
+      // Start slidev dev server with custom port
+      const devProcess = spawn(
+        "pnpm",
+        ["run", "dev", "--port", currentPort.toString(), "--open", "false"],
+        {
+          cwd: slideDir,
+          // Keep stdin open so Slidev's dev CLI (which listens for keyboard shortcuts)
+          // doesn't exit immediately. The newer 52.10+ releases close when stdin is absent.
+          stdio: ["pipe", "pipe", "pipe"],
+          detached: false,
+          env: {
+            ...process.env,
+            PATH: process.env.PATH,
+          },
+          shell: true,
+        },
       );
 
-      try {
-        // Start slidev dev server with custom port
-        const devProcess = spawn(
-          "pnpm",
-          ["run", "dev", "--port", currentPort.toString(), "--open", "false"],
-          {
-            cwd: slideDir,
-            // Keep stdin open so Slidev's dev CLI (which listens for keyboard shortcuts)
-            // doesn't exit immediately. The newer 52.10+ releases close when stdin is absent.
-            stdio: ["pipe", "pipe", "pipe"],
-            detached: false,
-            env: {
-              ...process.env,
-              PATH: process.env.PATH,
-            },
-            shell: true,
-          },
-        );
+      devProcess.stdout?.on("data", (data) => {
+        const output = data.toString();
+        if (output.includes("Local:") || output.includes("ready")) {
+          console.log(
+            `✅ ${slideName} dev server ready on port ${currentPort}`,
+          );
+        }
+      });
 
-        devProcess.stdout?.on("data", (data) => {
-          const output = data.toString();
-          if (output.includes("Local:") || output.includes("ready")) {
-            console.log(
-              `✅ ${slideName} dev server ready on port ${currentPort}`,
-            );
-          }
-        });
+      devProcess.stderr?.on("data", (data) => {
+        console.error(`❌ ${slideName} dev server error:`, data.toString());
+      });
 
-        devProcess.stderr?.on("data", (data) => {
-          console.error(`❌ ${slideName} dev server error:`, data.toString());
-        });
+      const serverInfo = {
+        name: slideName,
+        port: currentPort,
+        process: devProcess,
+      };
 
-        const serverInfo = {
-          name: slideName,
-          port: currentPort,
-          process: devProcess,
-        };
+      devServers.push(serverInfo);
+      runningServers.set(slideKey, serverInfo);
 
-        devServers.push(serverInfo);
-        runningServers.set(slideKey, serverInfo);
-
-        currentPort++;
-      } catch (error) {
-        console.error(`❌ Failed to start dev server for ${slideName}:`, error);
-      }
+      currentPort++;
+    } catch (error) {
+      console.error(`❌ Failed to start dev server for ${slideName}:`, error);
     }
   }
 
