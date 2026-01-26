@@ -1,5 +1,17 @@
 # slidev-workspace
 
+## 0.8.0
+
+### Minor Changes
+
+- a57178e: refactor slides helpers to use collectSlides only and rename the module to collectSlides
+
+### Patch Changes
+
+- 3540ca1: Fix dev server startup to respect excluded slides.
+- fa7fd9c: add custom dev port handling.
+- 1694a8b: Refactor the CLI to use Commander with updated build help text.
+
 ## 0.7.2
 
 ### Patch Changes
