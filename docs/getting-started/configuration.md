@@ -24,6 +24,18 @@ Controls where the workspace preview app and copied slide builds are written whe
 outputDir: "_gh-pages"
 ```
 
+## exclude
+
+**Default:** `["node_modules", ".git"]`
+
+An array of slide folder names to exclude from preview, build, and dev server startup.
+
+```yaml
+exclude:
+  - "drafts"
+  - "archived"
+```
+
 ## Hero Configuration
 
 The `hero` section allows you to customize the title and description displayed on the workspace preview page.
@@ -61,6 +73,8 @@ hero:
 
 baseUrl: "/presentations"
 outputDir: "./dist"
+exclude:
+  - "drafts"
 ```
 
-`hero.title`, `hero.description`, `baseUrl`, and `outputDir` are optional and will use their default values if not specified.
+`hero.title`, `hero.description`, `baseUrl`, `outputDir`, and `exclude` are optional and will use their default values if not specified.
