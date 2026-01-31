@@ -1,5 +1,11 @@
 # slidev-workspace
 
+## 0.9.1
+
+### Patch Changes
+
+- dbf4197: Adjust preview layout spacing and add a mobile drawer trigger for the sidebar.
+
 ## 0.9.0
 
 ### Minor Changes
