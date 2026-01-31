@@ -7,7 +7,7 @@
       <aside
         class="w-full border-r border-[#E8E8E8] bg-[#F1F1F1] text-sidebar-foreground dark:border-[#212121] dark:bg-[#121212]"
       >
-        <div class="sticky top-6 px-6 py-10 text-sidebar-foreground">
+        <div class="sticky top-0 px-6 py-10 text-sidebar-foreground">
           <div class="px-1 pb-4">
             <h2 class="text-lg font-semibold tracking-tight">
               {{ sidebar.title }}
