@@ -63,7 +63,9 @@ describe("cli vite helpers", () => {
     expect(config.base).toBe("/base/");
     expect(config.server.port).toBe(4321);
     expect(config.define.__SLIDEV_WORKSPACE_DEV_PORT_BASE__).toBe(4322);
+    expect(config.root).toContain("slidev-workspace");
     expect(config.root.endsWith("src/preview")).toBe(true);
+    expect(String(config.resolve.alias["@"])).toContain("slidev-workspace");
     expect(config.resolve.alias["@"].endsWith("src/preview")).toBe(true);
     expect(config.build.outDir.endsWith("dist-out")).toBe(true);
     expect(config.plugins).toEqual([
