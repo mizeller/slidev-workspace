@@ -4,6 +4,20 @@
 
 Slidev Workspace is a specialized command-line tool designed to manage and showcase multiple Slidev presentations. It provides a unified web interface to browse, search, and access Slidev presentations distributed across different directories.
 
+## Introduction Video
+
+Watch a quick walkthrough of Slidev Workspace:
+
+<iframe
+  width="100%"
+  height="400"
+  src="https://www.youtube.com/embed/0wGws-Yx1LU"
+  title="Slidev Workspace Introduction"
+  frameborder="0"
+  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+  allowfullscreen
+></iframe>
+
 ## Core Features
 
 ### 🚀 Simple Command Line Interface
