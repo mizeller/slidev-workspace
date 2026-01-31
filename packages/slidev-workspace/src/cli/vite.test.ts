@@ -58,7 +58,7 @@ describe("cli vite helpers", () => {
   it("createViteConfig builds config from workspace settings", async () => {
     const { createViteConfig } = await import("./vite");
 
-    const config = createViteConfig(4321);
+    const config = createViteConfig(4321, "build");
 
     expect(config.base).toBe("/base/");
     expect(config.server.port).toBe(4321);
@@ -71,6 +71,14 @@ describe("cli vite helpers", () => {
       { name: "tailwind-plugin" },
       { name: "slides-plugin" },
     ]);
+  });
+
+  it("createViteConfig uses root base in dev mode", async () => {
+    const { createViteConfig } = await import("./vite");
+
+    const config = createViteConfig(4321, "dev");
+
+    expect(config.base).toBe("/");
   });
 
   it("runViteBuild calls build steps in order", async () => {
