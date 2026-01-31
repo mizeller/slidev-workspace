@@ -14,6 +14,7 @@ describe("useConfig", () => {
    */
   async function setupUseConfig(configData?: {
     hero: { title: string; description: string };
+    sidebar?: { title: string };
   }) {
     vi.resetModules();
 
@@ -24,6 +25,9 @@ describe("useConfig", () => {
           title: "Slide Deck",
           description:
             "Browse all available slide decks and use the search function to quickly find what you need.",
+        },
+        sidebar: {
+          title: "Slide Deck",
         },
       },
     }));
@@ -131,6 +135,28 @@ describe("useConfig", () => {
     });
   });
 
+  describe("sidebar config", () => {
+    it("should return sidebar config from slidev:config", async () => {
+      const result = await setupUseConfig({
+        hero: {
+          title: "Test Workspace",
+          description: "Test Description",
+        },
+        sidebar: {
+          title: "Sidebar Title",
+        },
+      });
+
+      expect(result.sidebar.value.title).toBe("Sidebar Title");
+    });
+
+    it("should return default sidebar values when no config provided", async () => {
+      const result = await setupUseConfig();
+
+      expect(result.sidebar.value.title).toBe("Slide Deck");
+    });
+  });
+
   describe("error handling", () => {
     it("should use default values when import fails", async () => {
       vi.resetModules();
@@ -150,6 +176,7 @@ describe("useConfig", () => {
           expect(result.hero.value.description).toContain(
             "Browse all available",
           );
+          expect(result.sidebar.value.title).toBe("Slide Deck");
         },
         { timeout: 1000, interval: 10 },
       );

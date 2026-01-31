@@ -24,6 +24,7 @@ describe("scripts config", () => {
     expect(config.slidesDir).toEqual(["./slides"]);
     expect(config.exclude).toEqual(["node_modules", ".git"]);
     expect(config.hero.title).toBe("Slide Deck");
+    expect(config.sidebar.title).toBe("Slide Deck");
   });
 
   it("loadConfig merges yaml values with defaults", () => {
@@ -40,6 +41,8 @@ describe("scripts config", () => {
         "hero:",
         "  title: Custom Title",
         "  description: Custom Description",
+        "sidebar:",
+        "  title: Custom Sidebar",
       ].join("\n"),
     );
 
@@ -53,6 +56,9 @@ describe("scripts config", () => {
       title: "Custom Title",
       description: "Custom Description",
     });
+    expect(config.sidebar).toEqual({
+      title: "Custom Sidebar",
+    });
   });
 
   it("loadConfig preserves default hero when omitted", () => {
@@ -63,6 +69,7 @@ describe("scripts config", () => {
 
     expect(config.baseUrl).toBe("/custom/");
     expect(config.hero.title).toBe("Slide Deck");
+    expect(config.sidebar.title).toBe("Slide Deck");
   });
 
   it("resolveSlidesDirs resolves existing relative and absolute paths", () => {
@@ -80,6 +87,9 @@ describe("scripts config", () => {
         hero: {
           title: "Slide Deck",
           description: "Default",
+        },
+        sidebar: {
+          title: "Slide Deck",
         },
       },
       tempRoot,

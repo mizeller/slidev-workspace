@@ -1,75 +1,86 @@
 <template>
   <div
-    class="min-h-screen bg-gradient-to-br from-gray-100 via-white to-gray-200 dark:from-gray-900 dark:via-gray-950 dark:to-black py-16 px-4 transition-colors"
+    class="min-h-screen bg-gradient-to-b from-background via-background to-muted/30 dark:to-black transition-colors"
   >
-    <div class="max-w-6xl mx-auto">
-      <div class="mb-8 flex justify-between items-start">
-        <div>
-          <h1 class="text-3xl font-bold mb-2">{{ hero.title }}</h1>
-          <p class="text-muted-foreground">
-            {{ hero.description }}
-          </p>
-        </div>
-        <button
-          @click="toggleDarkMode"
-          class="p-2 rounded-lg hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring transition-colors cursor-pointer"
-          aria-label="Toggle dark mode"
-          type="button"
-        >
-          <Moon v-if="!isDark" class="size-6" />
-          <Sun v-else class="size-6" />
-        </button>
-      </div>
-
-      <div class="grid gap-8 lg:grid-cols-[240px_1fr]">
-        <aside class="order-2 lg:order-1">
-          <div
-            class="rounded-xl border bg-sidebar text-sidebar-foreground shadow-sm"
-          >
-            <div class="px-4 pt-4 pb-2">
-              <h2 class="text-xs font-semibold uppercase tracking-widest">
-                Categories
-              </h2>
-            </div>
-            <div class="px-2 pb-3 space-y-1">
-              <button
-                v-for="category in categoryOptions"
-                :key="category.name"
-                type="button"
-                @click="selectedCategory = category.name"
-                class="w-full flex items-center justify-between rounded-lg px-3 py-2 text-left text-sm transition-colors"
-                :class="
-                  selectedCategory === category.name
-                    ? 'bg-sidebar-accent text-sidebar-accent-foreground'
-                    : 'hover:bg-sidebar-accent/70 text-sidebar-foreground'
-                "
-              >
-                <span class="truncate">{{ category.name }}</span>
-                <span class="text-xs text-muted-foreground">{{
-                  category.count
-                }}</span>
-              </button>
-            </div>
+    <div class="mx-auto flex max-w-7xl flex-col gap-10 px-4 py-10 lg:flex-row">
+      <aside class="w-full lg:w-72 lg:shrink-0">
+        <div class="sticky top-6 text-sidebar-foreground">
+          <div class="px-1 pb-4">
+            <h2 class="text-lg font-semibold tracking-tight">
+              {{ sidebar.title }}
+            </h2>
           </div>
-        </aside>
 
-        <section class="order-1 lg:order-2">
-          <div class="space-y-4 mb-8">
+          <div class="px-1 pb-6">
             <div class="relative w-full">
               <Input
-                class="pl-10"
-                placeholder="Search by title, description, or author..."
+                class="pl-10 h-10 rounded-xl bg-background/70"
+                placeholder="Search slides..."
                 v-model="searchTerm"
               />
               <span
-                class="absolute start-0 inset-y-0 flex items-center justify-center px-2"
+                class="absolute start-0 inset-y-0 flex items-center justify-center px-3"
               >
-                <Search class="size-6 text-muted-foreground/30" />
+                <Search class="size-5 text-muted-foreground/50" />
               </span>
             </div>
           </div>
 
-          <div class="mb-6 flex items-center justify-between">
+          <div class="px-1 pb-2">
+            <h3
+              class="text-xs font-semibold uppercase tracking-widest text-muted-foreground"
+            >
+              Categories
+            </h3>
+          </div>
+
+          <div class="px-0.5 space-y-1 max-h-[60vh] overflow-auto">
+            <button
+              v-for="category in categoryOptions"
+              :key="category.name"
+              type="button"
+              @click="selectedCategory = category.name"
+              class="w-full flex items-center justify-between rounded-xl px-3 py-2 text-left text-sm transition-colors"
+              :class="
+                selectedCategory === category.name
+                  ? 'bg-sidebar-accent text-sidebar-accent-foreground'
+                  : 'hover:bg-sidebar-accent/70 text-sidebar-foreground'
+              "
+            >
+              <span class="truncate">{{ category.name }}</span>
+              <span class="text-xs text-muted-foreground">{{
+                category.count
+              }}</span>
+            </button>
+          </div>
+        </div>
+      </aside>
+
+      <section class="flex-1">
+        <div class="px-2">
+          <div
+            class="flex flex-col gap-4 md:flex-row md:items-start md:justify-between"
+          >
+            <div>
+              <h1 class="text-3xl font-semibold">{{ hero.title }}</h1>
+              <p class="mt-2 text-sm text-muted-foreground">
+                {{ hero.description }}
+              </p>
+            </div>
+            <button
+              @click="toggleDarkMode"
+              class="self-start p-2 rounded-lg hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring transition-colors cursor-pointer"
+              aria-label="Toggle dark mode"
+              type="button"
+            >
+              <Moon v-if="!isDark" class="size-5" />
+              <Sun v-else class="size-5" />
+            </button>
+          </div>
+
+          <div
+            class="mt-6 flex flex-col gap-2 md:flex-row md:items-center md:justify-between"
+          >
             <p class="text-sm text-muted-foreground">
               Found {{ filteredSlides.length }} of {{ slidesCount }} slides
               <template v-if="searchTerm">
@@ -84,21 +95,21 @@
               Category: <span class="font-medium">{{ selectedCategory }}</span>
             </p>
           </div>
+        </div>
 
-          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
-            <SlideCard
-              v-for="slide in filteredSlides"
-              :key="slide.title"
-              :title="slide.title"
-              :image="slide.image"
-              :description="slide.description"
-              :url="slide.url"
-              :author="slide.author"
-              :date="slide.date"
-            />
-          </div>
-        </section>
-      </div>
+        <div class="mt-8 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+          <SlideCard
+            v-for="slide in filteredSlides"
+            :key="slide.title"
+            :title="slide.title"
+            :image="slide.image"
+            :description="slide.description"
+            :url="slide.url"
+            :author="slide.author"
+            :date="slide.date"
+          />
+        </div>
+      </section>
     </div>
   </div>
 </template>
@@ -115,7 +126,7 @@ import SlideCard from "./SlideCard.vue";
 
 const searchTerm = ref("");
 const { slides, slidesCount } = useSlides();
-const { hero } = useConfig();
+const { hero, sidebar } = useConfig();
 const { isDark, toggleDarkMode } = useDarkMode();
 
 const uncategorizedLabel = "Uncategorized";

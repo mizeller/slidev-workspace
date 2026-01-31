@@ -142,6 +142,7 @@ export default slidesData;`;
           const config = loadConfig();
           const configData = {
             hero: config.hero,
+            sidebar: config.sidebar,
           };
           return `export const configData = ${JSON.stringify(configData, null, 2)};
 export default configData;`;

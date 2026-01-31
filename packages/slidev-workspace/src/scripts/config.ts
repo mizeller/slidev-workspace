@@ -13,6 +13,9 @@ const DEFAULT_CONFIG: SlidevWorkspaceConfig = {
     description:
       "Browse all available slide decks and use the search function to quickly find what you need.",
   },
+  sidebar: {
+    title: "Slide Deck",
+  },
 };
 
 export function loadConfig(workingDir?: string): SlidevWorkspaceConfig {

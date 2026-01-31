@@ -2,4 +2,7 @@ hero:
   title: "Preview Demo"
   description: "Preview Demo Description"
 
+sidebar:
+  title: "Slidev Workspace"
+
 baseUrl: /slidev-workspace-starter/
