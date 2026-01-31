@@ -67,6 +67,10 @@ describe("cli slides helpers", () => {
         title: "Slidev Workspace",
         description: "Test hero",
       },
+      sidebar: {
+        title: "Slidev Workspace",
+        githubUrl: "https://github.com/example",
+      },
     });
     resolveSlidesDirsMock.mockReturnValue([join(tempRoot, "slides")]);
   });

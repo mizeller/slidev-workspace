@@ -135,6 +135,7 @@ export function useSlides() {
         theme: slide.frontmatter.theme,
         transition: slide.frontmatter.transition,
         class: slide.frontmatter.class,
+        category: slide.category,
       };
     });
   });

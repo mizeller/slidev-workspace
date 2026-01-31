@@ -20,6 +20,43 @@ export function collectSlides({
 }: CollectSlidesParams): SlideEntry[] {
   const entries: SlideEntry[] = [];
 
+  const isExcluded = (name: string) =>
+    name
+      .split(/[\\/]+/)
+      .filter(Boolean)
+      .some((segment) => exclude.includes(segment));
+
+  const hasSlidesFile = (dir: string) => existsSync(join(dir, "slides.md"));
+  const readChildDirs = (dir: string) =>
+    readdirSync(dir, { withFileTypes: true })
+      .filter((dirent) => dirent.isDirectory())
+      .map((dirent) => dirent.name)
+      .filter((name) => !exclude.includes(name))
+      .sort((a, b) => a.localeCompare(b));
+
+  const walk = (slidesDir: string, dir: string, relativePath: string) => {
+    if (hasSlidesFile(dir)) {
+      if (relativePath) {
+        entries.push({
+          slidesDir,
+          slideName: relativePath,
+          slideDir: dir,
+        });
+      }
+      return;
+    }
+
+    for (const childName of readChildDirs(dir)) {
+      const childRelative = relativePath
+        ? `${relativePath}/${childName}`
+        : childName;
+      if (isExcluded(childRelative)) {
+        continue;
+      }
+      walk(slidesDir, join(dir, childName), childRelative);
+    }
+  };
+
   for (const slidesDir of slidesDirs) {
     if (!existsSync(slidesDir)) {
       console.warn(`⚠️ Slides directory not found: ${slidesDir}`);
@@ -28,11 +65,14 @@ export function collectSlides({
 
     if (names.length > 0) {
       for (const slideName of names) {
-        if (exclude.includes(slideName)) {
+        if (isExcluded(slideName)) {
           continue;
         }
         const slideDir = join(slidesDir, slideName);
         if (!existsSync(slideDir)) {
+          continue;
+        }
+        if (!hasSlidesFile(slideDir)) {
           continue;
         }
         entries.push({ slidesDir, slideName, slideDir });
@@ -40,15 +80,7 @@ export function collectSlides({
       continue;
     }
 
-    const slideNames = readdirSync(slidesDir, { withFileTypes: true })
-      .filter((dirent) => dirent.isDirectory())
-      .filter((dirent) => !exclude.includes(dirent.name))
-      .map((dirent) => dirent.name);
-
-    for (const slideName of slideNames) {
-      const slideDir = join(slidesDir, slideName);
-      entries.push({ slidesDir, slideName, slideDir });
-    }
+    walk(slidesDir, slidesDir, "");
   }
 
   return entries;

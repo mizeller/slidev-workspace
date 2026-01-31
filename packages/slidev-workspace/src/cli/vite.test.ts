@@ -44,6 +44,16 @@ describe("cli vite helpers", () => {
     loadConfigMock.mockReturnValue({
       baseUrl: "/base/",
       outputDir: "dist-out",
+      slidesDir: ["slides"],
+      exclude: [],
+      hero: {
+        title: "Slidev Workspace",
+        description: "Test hero",
+      },
+      sidebar: {
+        title: "Slidev Workspace",
+        githubUrl: "https://github.com/example",
+      },
     });
   });
 

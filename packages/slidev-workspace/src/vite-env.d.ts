@@ -7,9 +7,10 @@ declare module "slidev:content" {
 }
 
 declare module "slidev:config" {
-  import type { HeroConfig } from "./types/config.js";
+  import type { HeroConfig, SidebarConfig } from "./types/config.js";
   interface ConfigData {
     hero: HeroConfig;
+    sidebar: SidebarConfig;
   }
   const config: ConfigData;
   export default config;

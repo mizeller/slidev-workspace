@@ -53,6 +53,15 @@ vi.mock("./transformIndexHtml", () => ({
   transformIndexHtml: transformIndexHtmlMock,
 }));
 
+const getHookHandler = <T extends (...args: any[]) => any>(
+  hook: T | { handler: T } | undefined,
+): T | undefined => {
+  if (!hook) {
+    return undefined;
+  }
+  return typeof hook === "function" ? hook : hook.handler;
+};
+
 describe("vite slidesPlugin", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -64,6 +73,10 @@ describe("vite slidesPlugin", () => {
       hero: {
         title: "Hero",
         description: "Description",
+      },
+      sidebar: {
+        title: "Sidebar",
+        githubUrl: "https://github.com/example",
       },
     });
     resolveSlidesDirsMock.mockReturnValue(["/workspace/slides"]);
@@ -77,7 +90,12 @@ describe("vite slidesPlugin", () => {
     const { slidesPlugin } = await import("./plugin-slides");
 
     const plugin = slidesPlugin();
-    const result = await plugin.transformIndexHtml?.("<html></html>");
+    const transformHook = getHookHandler(plugin.transformIndexHtml);
+    const result = await transformHook?.call(
+      {} as never,
+      "<html></html>",
+      {} as never,
+    );
 
     expect(transformIndexHtmlMock).toHaveBeenCalledWith("<html></html>");
     expect(result).toBe("<html>ok</html>");
@@ -87,15 +105,33 @@ describe("vite slidesPlugin", () => {
     const { slidesPlugin } = await import("./plugin-slides");
     const plugin = slidesPlugin();
 
-    expect(plugin.resolveId?.("slidev:content")).toBe("slidev:content");
-    expect(plugin.resolveId?.("slidev:config")).toBe("slidev:config");
+    const resolveIdHook = getHookHandler(plugin.resolveId);
+    expect(
+      resolveIdHook?.call({} as never, "slidev:content", undefined, {
+        isEntry: false,
+      }),
+    ).toBe("slidev:content");
+    expect(
+      resolveIdHook?.call({} as never, "slidev:config", undefined, {
+        isEntry: false,
+      }),
+    ).toBe("slidev:config");
 
     getAllSlidesFrontmatterMock.mockReturnValue([{ title: "Alpha" }]);
-    const content = plugin.load?.("slidev:content") as string;
+    const loadHook = getHookHandler(plugin.load);
+    const content = loadHook?.call(
+      {} as never,
+      "slidev:content",
+      undefined,
+    ) as string;
     expect(content).toContain("slidesData");
     expect(content).toContain('"title": "Alpha"');
 
-    const config = plugin.load?.("slidev:config") as string;
+    const config = loadHook?.call(
+      {} as never,
+      "slidev:config",
+      undefined,
+    ) as string;
     expect(config).toContain("configData");
     expect(config).toContain('"title": "Hero"');
   });
@@ -123,7 +159,8 @@ describe("vite slidesPlugin", () => {
     const { slidesPlugin } = await import("./plugin-slides");
     const plugin = slidesPlugin({ devServerBasePort: 4500 });
 
-    await plugin.configureServer?.(server as never);
+    const configureServerHook = getHookHandler(plugin.configureServer);
+    await configureServerHook?.call({} as never, server as never);
 
     watcherCallback?.("change", "slides.md");
 
@@ -160,7 +197,8 @@ describe("vite slidesPlugin", () => {
     const { slidesPlugin } = await import("./plugin-slides");
     const plugin = slidesPlugin();
 
-    await plugin.closeBundle?.();
+    const closeBundleHook = getHookHandler(plugin.closeBundle);
+    await closeBundleHook?.call({} as never);
 
     expect(cpSyncMock).toHaveBeenCalledWith(
       "/workspace/slides/alpha/dist/assets/og-image-abc123.png",

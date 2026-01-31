@@ -62,6 +62,28 @@ hero:
   description: "A collection of all my presentations"
 ```
 
+## Sidebar Configuration
+
+The `sidebar` section controls the title displayed at the top of the preview sidebar.
+
+### sidebar.title
+
+**Default:** `Slide Deck`
+
+```yaml
+sidebar:
+  title: "Slidev Workspace"
+```
+
+### sidebar.githubUrl
+
+**Default:** `""`
+
+```yaml
+sidebar:
+  githubUrl: "https://github.com/your-org/your-repo"
+```
+
 ## Complete Example
 
 Here's a complete example configuration file:
@@ -70,6 +92,10 @@ Here's a complete example configuration file:
 hero:
   title: "Company Presentations"
   description: "Browse our collection of training and conference presentations"
+
+sidebar:
+  title: "Company Library"
+  githubUrl: "https://github.com/acme/presentations"
 
 baseUrl: "/presentations"
 outputDir: "./dist"

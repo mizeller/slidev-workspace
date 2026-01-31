@@ -172,4 +172,48 @@ background: /bg.jpg
     expect(result?.frontmatter.seoMeta?.ogImage).toBe("/seo-og.jpg");
     expect(result?.frontmatter.background).toBe("/bg.jpg");
   });
+
+  it("should derive category from nested slide paths", () => {
+    const mockContent = `---
+title: Nested Slide
+---
+# Content`;
+
+    vi.mocked(fs.existsSync).mockImplementation((path: PathLike) => {
+      const pathStr = String(path);
+      return pathStr.endsWith("slides.md");
+    });
+
+    vi.mocked(fs.readFileSync).mockReturnValue(
+      mockContent as unknown as string,
+    );
+
+    const result = getSlideFrontmatterByPath("/test/slides", "tech/slide-1", {
+      rootCategory: "root",
+    });
+
+    expect(result?.category).toBe("tech");
+  });
+
+  it("should use root category when no nested path is provided", () => {
+    const mockContent = `---
+title: Root Slide
+---
+# Content`;
+
+    vi.mocked(fs.existsSync).mockImplementation((path: PathLike) => {
+      const pathStr = String(path);
+      return pathStr.endsWith("slides.md");
+    });
+
+    vi.mocked(fs.readFileSync).mockReturnValue(
+      mockContent as unknown as string,
+    );
+
+    const result = getSlideFrontmatterByPath("/test/slides", "slide-1", {
+      rootCategory: "root",
+    });
+
+    expect(result?.category).toBe("root");
+  });
 });

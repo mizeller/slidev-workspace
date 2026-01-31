@@ -1,13 +1,15 @@
-import { readFileSync, readdirSync, existsSync } from "fs";
+import { readFileSync, existsSync } from "fs";
 import { join, basename } from "path";
 import { parse as parseYaml } from "yaml";
 import { loadConfig, resolveSlidesDirs } from "./config.js";
 import type { SlideFrontmatter, SlideInfo } from "../types/slide.js";
+import { collectSlides } from "./collectSlides";
 
 // Get the frontmatter and content of a slide from a specific path
 export function getSlideFrontmatterByPath(
   slideDir: string,
   slideName: string,
+  options: { rootCategory?: string } = {},
 ): SlideInfo | null {
   try {
     const config = loadConfig();
@@ -35,6 +37,13 @@ export function getSlideFrontmatterByPath(
     // Create unique ID from source directory and slide name
     const sourceBasename = basename(slideDir);
     const slideId = `${sourceBasename}/${slideName}`;
+    const nameSegments = slideName
+      .split(/[\\/]+/)
+      .filter((segment) => segment.length > 0);
+    const categoryFromPath =
+      nameSegments.length > 1 ? nameSegments.slice(0, -1).join("/") : undefined;
+    const rootCategory = options.rootCategory ?? sourceBasename;
+    const category = categoryFromPath ?? rootCategory;
 
     // Check if og-image.png exists in the slide directory
     const ogImagePath = join(slideDir, slideName, "og-image.png");
@@ -45,6 +54,7 @@ export function getSlideFrontmatterByPath(
       path: slideName,
       fullPath,
       sourceDir: slideDir,
+      category,
       frontmatter,
       content: content.replace(frontmatterMatch[0], ""), // Remove frontmatter section
       baseUrl: config.baseUrl,
@@ -64,30 +74,20 @@ export function getAllSlidesFrontmatter(): SlideInfo[] {
   const config = loadConfig();
   const slidesDirs = resolveSlidesDirs(config);
 
+  const entries = collectSlides({
+    slidesDirs,
+    exclude: config.exclude,
+  });
+
   const slides: SlideInfo[] = [];
 
-  for (const slidesDir of slidesDirs) {
-    if (!existsSync(slidesDir)) {
-      console.warn(`Slides directory not found: ${slidesDir}`);
-      continue;
-    }
-
-    try {
-      // Get all directories inside the current slides directory
-      const slideDirs = readdirSync(slidesDir, { withFileTypes: true })
-        .filter((dirent) => dirent.isDirectory())
-        .filter((dirent) => !(config.exclude || []).includes(dirent.name))
-        .map((dirent) => dirent.name);
-
-      // Collect slide info for each slide directory
-      for (const slideDir of slideDirs) {
-        const slideInfo = getSlideFrontmatterByPath(slidesDir, slideDir);
-        if (slideInfo) {
-          slides.push(slideInfo);
-        }
-      }
-    } catch (error) {
-      console.error(`Error reading slides directory ${slidesDir}:`, error);
+  for (const { slidesDir, slideName } of entries) {
+    const rootCategory = basename(slidesDir);
+    const slideInfo = getSlideFrontmatterByPath(slidesDir, slideName, {
+      rootCategory,
+    });
+    if (slideInfo) {
+      slides.push(slideInfo);
     }
   }
 

@@ -23,6 +23,8 @@ export interface SlideInfo {
   path: string;
   fullPath: string;
   sourceDir: string;
+  /** Category derived from folder structure (optional). */
+  category?: string;
   frontmatter: SlideFrontmatter;
   content: string;
   /** The base URL of the slide, which is defined in slidev-workspace.yml */
@@ -41,4 +43,5 @@ export interface SlideData {
   theme?: string;
   transition?: string;
   class?: string;
+  category?: string;
 }

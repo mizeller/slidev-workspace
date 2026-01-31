@@ -5,6 +5,13 @@ export interface HeroConfig {
   description: string;
 }
 
+export interface SidebarConfig {
+  /** Title displayed at the top of the sidebar. */
+  title: string;
+  /** Optional GitHub URL shown in the sidebar. */
+  githubUrl?: string;
+}
+
 /**
  * Slidev Workspace configuration loaded from slidev-workspace.yaml.
  */
@@ -19,4 +26,6 @@ export interface SlidevWorkspaceConfig {
   exclude: string[];
   /** Hero content surfaced by the preview application. */
   hero: HeroConfig;
+  /** Sidebar content surfaced by the preview application. */
+  sidebar: SidebarConfig;
 }
