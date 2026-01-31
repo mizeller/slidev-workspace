@@ -3,9 +3,9 @@
     <div
       class="min-h-screen lg:grid lg:grid-cols-[minmax(0,1fr)_280px_minmax(0,3fr)_minmax(0,1fr)]"
     >
-      <div class="hidden bg-[#F1F1F1] dark:bg-[#121212] lg:block" />
+      <div class="hidden bg-[#F1F1F1] dark:bg-[#191919] lg:block" />
       <aside
-        class="w-full border-r border-[#E8E8E8] bg-[#F1F1F1] text-sidebar-foreground dark:border-[#212121] dark:bg-[#121212]"
+        class="w-full border-r border-[#E8E8E8] bg-[#F1F1F1] text-sidebar-foreground dark:border-[#212121] dark:bg-[#191919]"
       >
         <div
           class="sticky top-0 flex h-screen flex-col px-6 py-10 text-sidebar-foreground"
@@ -84,7 +84,7 @@
         </div>
       </aside>
 
-      <section class="bg-[#F5F5F5] dark:bg-[#191919]">
+      <section class="bg-[#F5F5F5] dark:bg-[#121212]">
         <div class="px-6 py-10 lg:px-12">
           <div
             class="flex flex-col gap-4 md:flex-row md:items-start md:justify-between"
@@ -130,7 +130,7 @@
           />
         </div>
       </section>
-      <div class="hidden bg-[#F5F5F5] dark:bg-[#191919] lg:block" />
+      <div class="hidden bg-[#F5F5F5] dark:bg-[#121212] lg:block" />
     </div>
   </div>
 </template>
