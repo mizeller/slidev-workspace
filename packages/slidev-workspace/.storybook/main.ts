@@ -10,5 +10,17 @@ const config: StorybookConfig = {
     "@storybook/addon-onboarding",
   ],
   framework: "@storybook/vue3-vite",
+  async viteFinal(baseConfig) {
+    // Prevent slides plugin execute a watch task when running storybook
+    const plugins = (baseConfig.plugins ?? []).filter(
+      (plugin) =>
+        plugin && (plugin as { name?: string }).name !== "vite-plugin-slides",
+    );
+
+    return {
+      ...baseConfig,
+      plugins,
+    };
+  },
 };
 export default config;
