@@ -40,21 +40,6 @@
           description
         }}</CardDescription>
 
-        <div class="flex flex-wrap gap-1 mb-2">
-          <span
-            v-if="theme"
-            class="inline-flex items-center px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800"
-          >
-            {{ theme }}
-          </span>
-          <span
-            v-if="sourceDir"
-            class="inline-flex items-center px-2 py-1 rounded-full text-xs bg-green-100 text-green-800"
-          >
-            {{ sourceDir.split("/").pop() }}
-          </span>
-        </div>
-
         <div
           class="flex items-center justify-between text-xs text-muted-foreground pt-2 border-t"
         >
@@ -92,8 +77,6 @@ const props = defineProps<{
   url: string;
   author: string;
   date: string;
-  theme?: string;
-  sourceDir?: string;
 }>();
 
 defineEmits<{
