@@ -31,20 +31,32 @@
 
     <div :class="categoriesClass">
       <button
-        v-for="category in categories"
-        :key="category.name"
+        v-if="allCategory"
+        :key="allCategory.name"
         type="button"
-        @click="selectedCategory = category.name"
-        class="w-full flex items-center justify-between rounded-xl px-3 py-2 text-left text-sm transition-colors"
+        @click="selectedCategory = allCategory.name"
+        class="mb-2 w-full flex items-center justify-between rounded-xl px-3 py-2 text-left text-sm transition-colors"
         :class="
-          selectedCategory === category.name
-            ? 'bg-sidebar-accent text-sidebar-accent-foreground ring-1 ring-sidebar-border/70 shadow-sm dark:ring-sidebar-border/30'
+          selectedCategory === allCategory.name
+            ? 'bg-sidebar-accent text-sidebar-accent-foreground ring-1 ring-sidebar-border/70 dark:ring-sidebar-border/30'
             : 'hover:bg-sidebar-accent/70 text-sidebar-foreground'
         "
       >
-        <span class="truncate">{{ category.name }}</span>
-        <span class="text-xs text-muted-foreground">{{ category.count }}</span>
+        <span class="truncate">{{ allCategory.name }}</span>
       </button>
+
+      <div
+        v-if="categoryTree.length === 0 && !allCategory"
+        class="px-3 py-2 text-xs text-muted-foreground"
+      >
+        No categories yet.
+      </div>
+
+      <TreeView
+        v-else
+        :nodes="categoryTree"
+        v-model:selected="selectedCategory"
+      />
     </div>
 
     <div class="mt-auto flex items-center justify-between gap-3 pt-6">
@@ -77,17 +89,17 @@ import { computed } from "vue";
 import { Github, Moon, Search, Sun } from "lucide-vue-next";
 
 import { Input } from "../components/ui/input";
-
-interface CategoryOption {
-  name: string;
-  count: number;
-}
+import {
+  normalizeCategories,
+  type CategoryNodeInput,
+} from "../lib/categoryTree";
+import TreeView from "./TreeView.vue";
 
 const props = withDefaults(
   defineProps<{
     title: string;
     githubUrl?: string;
-    categories: CategoryOption[];
+    categories: CategoryNodeInput[];
     isDark: boolean;
     variant?: "desktop" | "drawer";
   }>(),
@@ -105,6 +117,12 @@ const selectedCategory = defineModel<string>("selectedCategory", {
   default: "All",
 });
 
+const ALL_CATEGORY_LABEL = "All";
+
+const allCategory = computed(() =>
+  props.categories.find((category) => category.name === ALL_CATEGORY_LABEL),
+);
+
 const containerClass = computed(() =>
   props.variant === "drawer"
     ? "flex h-full flex-col px-6 py-8 text-sidebar-foreground"
@@ -115,5 +133,11 @@ const categoriesClass = computed(() =>
   props.variant === "drawer"
     ? "px-0.5 pb-2 space-y-1 flex-1 overflow-auto"
     : "px-0.5 pb-2 space-y-1 max-h-[60vh] overflow-auto",
+);
+
+const categoryTree = computed(() =>
+  normalizeCategories(
+    props.categories.filter((category) => category.name !== ALL_CATEGORY_LABEL),
+  ),
 );
 </script>

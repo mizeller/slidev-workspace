@@ -10,12 +10,41 @@ const meta: Meta<typeof SlideSidebar> = {
     title: "Slide Deck",
     githubUrl: "https://github.com/slidevjs/slidev",
     categories: [
-      { name: "All", count: 18 },
-      { name: "Design", count: 6 },
-      { name: "Engineering", count: 8 },
-      { name: "Product", count: 4 },
+      {
+        name: "All",
+      },
+      {
+        name: "tech-slides",
+      },
+      {
+        name: "tech",
+        categories: [
+          {
+            name: "slides",
+          },
+          {
+            name: "workshops",
+            categories: [
+              {
+                name: "frontend",
+              },
+              {
+                name: "backend",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        name: "design",
+        categories: [
+          {
+            name: "systems",
+          },
+        ],
+      },
     ],
-    selectedCategory: "All",
+    selectedCategory: "tech/slides",
     searchTerm: "",
     isDark: false,
     variant: "desktop",
