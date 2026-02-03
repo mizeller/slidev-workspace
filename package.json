@@ -4,7 +4,7 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "dev:preview": "pnpm --filter @slidev-workspace/preview run dev",
+    "dev:watch": "pnpm --filter slidev-workspace run dev:watch",
     "build": "pnpm --filter slidev-workspace run build",
     "docs:dev": "pnpm --filter @slidev-workspace/docs run docs:dev",
     "test": "pnpm --filter slidev-workspace run test",
