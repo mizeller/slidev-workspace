@@ -31,12 +31,23 @@ def detect_slidev_project(path: Path) -> bool:
 
 
 def already_workspace(path: Path) -> bool:
-    """Check if path is already a workspace root."""
-    return (path / "slidev-workspace.yaml").exists() or (path / "pnpm-workspace.yaml").exists()
+    """Check if path is already a workspace root with actual package globs."""
+    if (path / "slidev-workspace.yaml").exists():
+        return True
+    pnpm_ws = path / "pnpm-workspace.yaml"
+    if pnpm_ws.exists():
+        return "packages:" in pnpm_ws.read_text()
+    return False
 
 
 def migrate(slides_dir: Path, workspace_name: str, base_url: str):
     slides_dir = slides_dir.resolve()
+
+    if already_workspace(slides_dir):
+        print(f"❌ {slides_dir} is already a workspace root")
+        print("   (pnpm-workspace.yaml with packages: or slidev-workspace.yaml detected)")
+        print("   To add a new slide, place it in slides/<name>/ and update slidev-workspace.yaml manually.")
+        sys.exit(1)
 
     if not detect_slidev_project(slides_dir):
         print(f"❌ No Slidev project detected at {slides_dir}")
