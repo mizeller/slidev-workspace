@@ -47,6 +47,16 @@ The `useSlides` composable returns frontmatter data from all discovered presenta
 
 Get started in 5 minutes! See our [Quick Start Guide](https://leochiu-a.github.io/slidev-workspace/getting-started/quick-start.html).
 
+## Migrate from a Single Slidev Project
+
+Already have a single Slidev project and want to turn it into a workspace? Install the migration skill for [Claude Code](https://claude.ai/code):
+
+```bash
+npx skills add https://github.com/leochiu-a/slidev-workspace/tree/main/.claude/skills/slidev-migrate
+```
+
+Then ask Claude: **"migrate my slidev project to a workspace"** — it will scaffold the workspace structure, move your files, and configure everything automatically.
+
 ## Documentation
 
 - 📚 [Quick Start Guide](https://leochiu-a.github.io/slidev-workspace/getting-started/quick-start.html) - Get up and running in 5 minutes
